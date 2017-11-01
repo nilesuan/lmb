@@ -1,0 +1,40 @@
+{
+  "name": "lmb",
+  "version": "1.0.0",
+  "description": "A better CLI for AWS Lambda",
+  "main": "./src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nilesuan/lmb.git"
+  },
+  "bin": {
+    "lmb": "./src/index.js"
+  },
+  "keywords": [
+    "aws",
+    "lambda",
+    "cli"
+  ],
+  "author": "Nile Suan <nilesuan@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nilesuan/lmb/issues"
+  },
+  "homepage": "https://github.com/nilesuan/lmb#readme",
+  "dependencies": {
+    "archiver": "^2.1.0",
+    "aws-sdk": "^2.141.0",
+    "bluebird": "^3.5.1",
+    "chalk": "^2.3.0",
+    "clear-promise": "^1.0.1",
+    "clui": "^0.3.6",
+    "commander": "^2.11.0",
+    "fs-extra": "^4.0.2",
+    "inquirer": "^3.3.0",
+    "moment": "^2.19.1",
+    "semver": "^5.4.1"
+  }
+}
