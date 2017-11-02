@@ -12,11 +12,7 @@ const root      = __dirname + '/';
 const config    = require(root + 'functions/config.js');
 const package   = require(root + 'functions/package.js');
 const deploy    = require(root + 'functions/deploy.js');
-
-/*
-const path      = require('path');
-
-*/
+const test      = require(root + 'functions/test.js');
 
 program
   .version(me.version);
@@ -67,6 +63,7 @@ program
   .action((version) => {
     let status = new Spinner('deploying function');
     status.start();
+
     version = (typeof version === 'undefined') ? 'patch' : version;
     let hold = {};
 
@@ -98,6 +95,34 @@ program
     console.log('    $ lmb deploy patch');
     console.log('    $ lmb deploy minor stage');
     console.log('    $ lmb deploy major prod');
+    console.log();
+  });
+
+program
+  .command('test [json]')
+  .description('test the lambda function locally before uploading it to aws')
+  .option('-l, --local', 'test using local nodejs (default)')
+  .option('-d, --docker', 'test using docker emulation')
+  .action((json, options) => {
+    let hold = {};
+    let docker = (typeof options.docker === 'undefined') ? false : true;
+
+    clear()
+    .then(()     => { return package.load(); })
+    .then((data) => { return package.verify(data); })
+    .then((data) => { hold = data; return test.verify(json); })
+    .then((data) => { return test.run(data, hold, docker); })
+    .then((data) => { console.log(data); return true; })
+    .then(()     => { process.exit(); })
+    .catch((err) => { console.log(chalk.red(err)); process.exit(); });
+  })
+  .on('--help',() => {
+    console.log();
+    console.log('  Examples:');
+    console.log();
+    console.log('    $ lmb test');
+    console.log('    $ lmb test -l {"hello": "world"}');
+    console.log('    $ lmb test -d input.json');
     console.log();
   });
 

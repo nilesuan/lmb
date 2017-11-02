@@ -1,4 +1,3 @@
-
 const Promise     = require('bluebird');
 const fse         = require('fs-extra');
 const AWS         = require('aws-sdk');
@@ -88,10 +87,25 @@ module.exports = {
       AWS.config.update({region: package.lambda.region});
       const lambda = new AWS.Lambda({apiVersion: '2015-03-31'});
 
-      let params = { FunctionName: package.name, Publish: true, S3Bucket: package.lambda.bucket, S3Key: 'lambda.zip' };
-      lambda.updateFunctionCode(params, function(err, data) {
+      let params = {
+        FunctionName: package.name,
+        Description: package.description,
+        Runtime: package.lambda.runtime,
+        Role: package.lambda.role,
+        Handler: package.lambda.handler,
+        Timeout: package.lambda.timeout,
+        MemorySize: package.lambda.memory
+      };
+
+      lambda.updateFunctionConfiguration(params, function(err, data) {
         if(err) return reject(err);
-        else return resolve(data);
+        else {
+          let params = { FunctionName: package.name, Publish: true, S3Bucket: package.lambda.bucket, S3Key: 'lambda.zip' };
+          lambda.updateFunctionCode(params, function(err, data) {
+            if(err) return reject(err);
+            else return resolve(data);
+          });
+        }
       });
     });
   }

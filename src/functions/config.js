@@ -1,4 +1,3 @@
-
 const inquirer    = require('inquirer');
 const Promise     = require('bluebird');
 const fse         = require('fs-extra');

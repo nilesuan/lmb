@@ -1,4 +1,3 @@
-
 const inquirer    = require('inquirer');
 const Promise     = require('bluebird');
 const fse         = require('fs-extra');
@@ -152,8 +151,12 @@ module.exports = {
   },
   archive: (package, version) => {
     return new Promise((resolve, reject) => {
-      fse.copy(base + 'package.json', base + 'src/package.json')
-      .then(() => { return fse.copy(base + 'node_modules', base + 'src/node_modules'); })
+      fse.pathExists(base + 'src/node_modules')
+      .then(exists => {
+        if(exists) return fse.copy(base + 'node_modules', base + 'src/node_modules');
+        else return exists;
+      })
+      .then(() => { return fse.copy(base + 'package.json', base + 'src/package.json'); })
       .then(() => {
         let output = fs.createWriteStream(base + 'lambda.zip');
         let archive = archiver('zip', {zlib: {level: 9}});

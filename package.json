@@ -32,6 +32,7 @@
     "clear-promise": "^1.0.1",
     "clui": "^0.3.6",
     "commander": "^2.11.0",
+    "docker-lambda": "^0.13.4",
     "fs-extra": "^4.0.2",
     "inquirer": "^3.3.0",
     "moment": "^2.19.1",
