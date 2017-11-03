@@ -4,7 +4,7 @@ const fse         = require('fs-extra');
 const os          = require('os');
 
 module.exports = {
-  ask: (configuration) => {
+  ask: configuration => {
     return new Promise((resolve, reject) => {
       configuration = (configuration === null) ? {} : configuration;
 
@@ -97,11 +97,11 @@ module.exports = {
       const config_file = os.homedir() + '/.lmb';
       fse.ensureFile(config_file)
       .then(() => { return fse.readJson(config_file, { throws: false }); })
-      .then((configuration) => { resolve(configuration); })
+      .then(configuration => { resolve(configuration); })
       .catch(err => { reject(err); });
     });
   },
-  save: (configuration) => {
+  save: configuration => {
     return new Promise((resolve, reject) => {
       const config_file = os.homedir() + '/.lmb';
       fse.ensureFile(config_file)

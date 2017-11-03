@@ -8,7 +8,7 @@ const fs          = require('fs');
 const base        = process.env.PWD + '/';
 
 module.exports = {
-  ask: (package) => {
+  ask: package => {
     return new Promise((resolve, reject) => {
       configuration = (package.lambda === null) ? {} : package.lambda;
 
@@ -96,12 +96,12 @@ module.exports = {
       inquirer.prompt(questions).then(answers => { package.lambda = answers; return resolve(package);});
     });
   },
-  load: (configuration) => {
+  load: configuration => {
     return new Promise((resolve, reject) => {
       const package_file = base + 'package.json';
       fse.ensureFile(package_file)
       .then(() => { return fse.readJson(package_file, { throws: false }); })
-      .then((package) => {
+      .then(package => {
         configuration = (typeof configuration === 'undefined') ? {} : configuration;
         package.lambda = (typeof package.lambda === 'undefined') ? {} : package.lambda;
         package.lambda.env     = (typeof package.lambda.env === 'undefined')      ? configuration.env     : package.lambda.env;
@@ -117,7 +117,7 @@ module.exports = {
       .catch(err => { return reject(err); });
     });
   },
-  save: (package) => {
+  save: package => {
     return new Promise((resolve, reject) => {
       const package_file = base + 'package.json';
       fse.ensureFile(package_file)
@@ -126,7 +126,7 @@ module.exports = {
       .catch(err => { return reject(err); });
     });
   },
-  ensure: (package) => {
+  ensure: package => {
     return new Promise((resolve, reject) => {
       fse.ensureDir(base + '/src')
       .then(() => { return fse.ensureDir(base + '/tests') })
@@ -134,7 +134,7 @@ module.exports = {
       .catch(err => { return reject(err); });
     });
   },
-  verify: (package) => {
+  verify: package => {
     return new Promise((resolve, reject) => {
       if(typeof package.lambda.env === 'undefined') return reject('The package does not have a lambda configuration. Please run "lmb init" first.');
       else return resolve(package);
@@ -151,7 +151,7 @@ module.exports = {
   },
   archive: (package, version) => {
     return new Promise((resolve, reject) => {
-      fse.pathExists(base + 'src/node_modules')
+      fse.pathExists(base + 'node_modules')
       .then(exists => {
         if(exists) return fse.copy(base + 'node_modules', base + 'src/node_modules');
         else return exists;

@@ -6,14 +6,14 @@ const fs          = require('fs');
 const base        = process.env.PWD + '/';
 
 module.exports = {
-  clean: (package) => {
+  clean: package => {
     return new Promise((resolve, reject) => {
       
       AWS.config.update({region: package.lambda.region});
       const s3 = new AWS.S3({apiVersion: '2006-03-01'});
       
       let params = { Bucket: package.lambda.bucket, Key: 'lambda.zip' };
-      s3.deleteObject(params, function(err, data) {
+      s3.deleteObject(params, (err, data) => {
         if(err) return reject(err);
 
         fse.remove(base + 'lambda.zip')
@@ -25,7 +25,7 @@ module.exports = {
 
     });
   },
-  upload: (package) => {
+  upload: package => {
     return new Promise((resolve, reject) => {
       
       AWS.config.update({region: package.lambda.region});
@@ -33,7 +33,7 @@ module.exports = {
 
       let body = fs.readFileSync(base + 'lambda.zip');
       let params = { Bucket: package.lambda.bucket, Key: 'lambda.zip', Body: body, ACL: 'public-read' };
-      s3.upload(params, function(err, data) {
+      s3.upload(params, (err, data) => {
         if(err) return reject(err);
         else return resolve(true);
       });
@@ -41,7 +41,7 @@ module.exports = {
       
     });
   },
-  exists: (package) => {
+  exists: package => {
     return new Promise((resolve, reject) => {
       
       AWS.config.update({region: package.lambda.region});
@@ -54,7 +54,7 @@ module.exports = {
       });
     });
   },
-  create: (package) => {
+  create: package => {
     return new Promise((resolve, reject) => {
       
       AWS.config.update({region: package.lambda.region});
@@ -75,13 +75,13 @@ module.exports = {
         }
       };
 
-      lambda.createFunction(params, function(err, data) {
+      lambda.createFunction(params, (err, data) => {
         if(err) return reject(err);
         else return resolve(data);
       });
     });
   },
-  update: (package) => {
+  update: package => {
     return new Promise((resolve, reject) => {
       
       AWS.config.update({region: package.lambda.region});
@@ -97,11 +97,11 @@ module.exports = {
         MemorySize: package.lambda.memory
       };
 
-      lambda.updateFunctionConfiguration(params, function(err, data) {
+      lambda.updateFunctionConfiguration(params, (err, data) => {
         if(err) return reject(err);
         else {
           let params = { FunctionName: package.name, Publish: true, S3Bucket: package.lambda.bucket, S3Key: 'lambda.zip' };
-          lambda.updateFunctionCode(params, function(err, data) {
+          lambda.updateFunctionCode(params, (err, data) => {
             if(err) return reject(err);
             else return resolve(data);
           });

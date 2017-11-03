@@ -5,7 +5,7 @@ const fse         = require('fs-extra');
 const base        = process.env.PWD + '/';
 
 module.exports = {
-  verify: (json) => {
+  verify: json => {
     return new Promise((resolve, reject) => {
 
       // invoke with no input
@@ -18,7 +18,7 @@ module.exports = {
         // invoke with json file
         fse.ensureFile(json)
         .then(() => { return fse.readJson(json); })
-        .then((data) => { return resolve(data); })
+        .then(data => { return resolve(data); })
         .catch(err => { return reject(err); });
       }
     });
