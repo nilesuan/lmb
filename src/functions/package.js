@@ -149,7 +149,7 @@ module.exports = {
       else { return reject('The package version is invalid.'); }
     });
   },
-  archive: (package, version) => {
+  archive: () => {
     return new Promise((resolve, reject) => {
       fse.pathExists(base + 'node_modules')
       .then(exists => {

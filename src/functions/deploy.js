@@ -8,7 +8,7 @@ const base        = process.env.PWD + '/';
 module.exports = {
   clean: package => {
     return new Promise((resolve, reject) => {
-      
+
       AWS.config.update({region: package.lambda.region});
       const s3 = new AWS.S3({apiVersion: '2006-03-01'});
       
@@ -27,7 +27,7 @@ module.exports = {
   },
   upload: package => {
     return new Promise((resolve, reject) => {
-      
+
       AWS.config.update({region: package.lambda.region});
       const s3 = new AWS.S3({apiVersion: '2006-03-01'});
 
@@ -38,12 +38,12 @@ module.exports = {
         else return resolve(true);
       });
 
-      
+
     });
   },
   exists: package => {
     return new Promise((resolve, reject) => {
-      
+
       AWS.config.update({region: package.lambda.region});
       const lambda = new AWS.Lambda({apiVersion: '2015-03-31'});
 
@@ -56,7 +56,7 @@ module.exports = {
   },
   create: package => {
     return new Promise((resolve, reject) => {
-      
+
       AWS.config.update({region: package.lambda.region});
       const lambda = new AWS.Lambda({apiVersion: '2015-03-31'});
 
@@ -83,7 +83,7 @@ module.exports = {
   },
   update: package => {
     return new Promise((resolve, reject) => {
-      
+
       AWS.config.update({region: package.lambda.region});
       const lambda = new AWS.Lambda({apiVersion: '2015-03-31'});
 
