@@ -12,7 +12,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       configuration = (package.lambda === null) ? {} : package.lambda;
 
-      const env     = (typeof configuration.env === 'undefined')      ? 'dev'           : configuration.env;
       const runtime = (typeof configuration.runtime === 'undefined')  ? 'nodejs6.10'    : configuration.runtime;
       const role    = (typeof configuration.role === 'undefined')     ? ''              : configuration.role;
       const handler = (typeof configuration.handler === 'undefined')  ? 'index.handler' : configuration.handler;
@@ -22,17 +21,6 @@ module.exports = {
       const bucket  = (typeof configuration.bucket === 'undefined')   ? 'lambda-bucket' : configuration.bucket;
 
       const questions = [
-        {
-          name: 'env',
-          type: 'list',
-          message: 'Runtime of the function:',
-          default: env,
-          choices: [
-            'dev',
-            'stage',
-            'prod'
-          ]
-        },
         {
           name: 'runtime',
           type: 'list',
@@ -104,7 +92,6 @@ module.exports = {
       .then(package => {
         configuration = (typeof configuration === 'undefined') ? {} : configuration;
         package.lambda = (typeof package.lambda === 'undefined') ? {} : package.lambda;
-        package.lambda.env     = (typeof package.lambda.env === 'undefined')      ? configuration.env     : package.lambda.env;
         package.lambda.runtime = (typeof package.lambda.runtime === 'undefined')  ? configuration.runtime : package.lambda.runtime;
         package.lambda.role    = (typeof package.lambda.role === 'undefined')     ? configuration.role    : package.lambda.role;
         package.lambda.handler = (typeof package.lambda.handler === 'undefined')  ? configuration.handler : package.lambda.handler;
@@ -136,8 +123,23 @@ module.exports = {
   },
   verify: package => {
     return new Promise((resolve, reject) => {
-      if(typeof package.lambda.env === 'undefined') return reject('The package does not have a lambda configuration. Please run "lmb init" first.');
+      if(typeof package.lambda.runtime === 'undefined') return reject('The package does not have a lambda configuration. Please run "lmb init" first.');
       else return resolve(package);
+    });
+  },
+  copy: package => {
+    return new Promise((resolve, reject) => {
+      if(package.copy instanceof Array == false) return resolve(true);
+
+      Promise.map(package.copy, line => {
+        return fse.pathExists(line[0])
+        .then(exists => {
+          if(exists) return fse.copy(line[0], line[1]);
+          else return exists;
+        })
+        .catch(err => { return reject(err); });
+      })
+      .then(() => { return resolve(true); });
     });
   },
   patch: (package, version) => {

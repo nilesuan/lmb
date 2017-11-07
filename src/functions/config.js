@@ -8,7 +8,6 @@ module.exports = {
     return new Promise((resolve, reject) => {
       configuration = (configuration === null) ? {} : configuration;
 
-      const env     = (typeof configuration.env === 'undefined')      ? 'dev'           : configuration.env;
       const runtime = (typeof configuration.runtime === 'undefined')  ? 'nodejs6.10'    : configuration.runtime;
       const role    = (typeof configuration.role === 'undefined')     ? ''              : configuration.role;
       const handler = (typeof configuration.handler === 'undefined')  ? 'index.handler' : configuration.handler;
@@ -18,17 +17,6 @@ module.exports = {
       const bucket  = (typeof configuration.bucket === 'undefined')   ? 'lambda-bucket' : configuration.bucket;
 
       const questions = [
-        {
-          name: 'env',
-          type: 'list',
-          message: 'Enviroment of the function:',
-          default: env,
-          choices: [
-            'dev',
-            'stage',
-            'prod'
-          ]
-        },
         {
           name: 'runtime',
           type: 'list',
