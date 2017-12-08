@@ -29,8 +29,12 @@ module.exports = {
       if(!docker) { // local test
         let index = require(base + 'src/' + package.lambda.handler.split(".")[0] + '.js');
         let handler = package.lambda.handler.split(".")[1];
+
+        console.log(index);
+        console.log(handler);
+        
         index[handler](data, {}, (err, out) => {
-            if(err) { reject(err); }
+            if(err) { reject(JSON.stringify(err)); }
             else { resolve(JSON.stringify(out)); }
         });
       } else { // docker test
