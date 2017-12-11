@@ -13,6 +13,7 @@ const config    = require(root + 'functions/config.js');
 const package   = require(root + 'functions/package.js');
 const deploy    = require(root + 'functions/deploy.js');
 const invoke    = require(root + 'functions/invoke.js');
+const aliases   = require(root + 'functions/aliases.js');
 const test      = require(root + 'functions/test.js');
 
 program
@@ -59,7 +60,7 @@ program
   });
 
 program
-  .command('deploy [version] [env]')
+  .command('deploy [version] [alias]')
   .alias('update')
   .description('creates or updates the code and configuration for the specific lambda function')
   .action(version => {
@@ -68,6 +69,7 @@ program
 
     version = (typeof version === 'undefined') ? 'patch' : version;
     let hold = {};
+    let exists = true;
 
     clear()
     .then(()     => { status.message('loading package configuration'); return package.load(); })
@@ -82,8 +84,23 @@ program
     .then(data   => {
       status.message('updating lambda code from s3 archive');
       hold = data;
-      if(data.lambda.exists) return deploy.update(data);
-      else return deploy.create(data);
+      if(data.lambda.exists) { return deploy.update(data); }
+      else { exists = false; return deploy.create(data); }
+    })
+    .then(()     => {
+      if(!exists) {
+        data = {
+          name: hold.name,
+          'alias_version': '$LATEST',
+          'alias_name': 'dev',
+          'alias_description': 'Developmen Version',
+          'lambda': {
+            'region': hold.lambda.region
+          }
+        };
+        return aliases.create(data);
+      }
+      else { return true; }
     })
     .then(()     => { status.message('cleaning old files'); return deploy.clean(hold); })
     .then(()     => { status.stop(); return clear(); })
@@ -158,6 +175,54 @@ program
     console.log('    $ lmb test');
     console.log('    $ lmb test -l {"hello": "world"}');
     console.log('    $ lmb test -d input.json');
+    console.log();
+  });
+
+program
+  .command('alias [alias] [description]')
+  .description('Set aliases to specific versions or list aliases of the function')
+  .option('-t, --target', 'target version to attach the alias (defaults to $LATEST)')
+  .option('-a, --aliases', 'list aliases of the function')
+  .option('-v, --versions', 'list versions of the function')
+  .option('-r, --remove', 'remove alias from the function')
+  .action((alias, description, options) => {
+    let status = new Spinner('deploying function');
+    status.start();
+
+    clear()
+    .then(()     => { return package.load(); })
+    .then(data   => { return package.verify(data); })
+    .then(data   => {
+      data.alias_name         = (typeof alias === 'undefined') ? 'dev' : alias;
+      data.alias_version      = (typeof options.target === 'undefined') ? '$LATEST' : options.target;
+      data.alias_description  = (typeof description === 'undefined') ? '' : description;
+      if(!options.aliases && !options.versions && !options.remove) {
+        status.message('creating ' + data.alias_name + ' alias for ' + data.name + ' function');
+        return aliases.tag(data);
+      } else if(options.aliases) {
+        status.message('fetching function aliases');
+        return aliases.aliases(data);
+      } else if(options.versions) {
+        status.message('fetching function versions');
+        return aliases.versions(data);
+      } else if(options.remove) {
+        status.message('removing ' + data.alias_name + ' alias from ' + data.name + ' function');
+        return aliases.remove(data);
+      }
+    })
+    .then(data   => { console.log(data); return true; })
+    .then(()     => { process.exit(); })
+    .catch(err   => { console.log(chalk.red(err)); process.exit(); });
+  })
+  .on('--help',() => {
+    console.log();
+    console.log('  Examples:');
+    console.log();
+    console.log('    $ lmb alias dev');
+    console.log('    $ lmb alias test For testing');
+    console.log('    $ lmb alias prod -v 11');
+    console.log('    $ lmb alias -a');
+    console.log('    $ lmb alias -r prod');
     console.log();
   });
 
